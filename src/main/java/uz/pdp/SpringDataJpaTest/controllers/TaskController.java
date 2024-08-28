@@ -1,12 +1,21 @@
 package uz.pdp.SpringDataJpaTest.controllers;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import uz.pdp.SpringDataJpaTest.dto.TaskCreateDTO;
+import uz.pdp.SpringDataJpaTest.exception.UsernameOrPasswordWrong;
 import uz.pdp.SpringDataJpaTest.model.Task;
 import uz.pdp.SpringDataJpaTest.repositories.TaskRepository;
+import uz.pdp.SpringDataJpaTest.utils.SecurityUtils;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/task")
@@ -14,19 +23,45 @@ public class TaskController {
 
 
     private final TaskRepository taskRepository;
+    private final SecurityUtils securityUtils;
 
-    public TaskController(TaskRepository taskRepository) {
+    public TaskController(TaskRepository taskRepository, SecurityUtils securityUtils) {
         this.taskRepository = taskRepository;
+        this.securityUtils = securityUtils;
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Task> create(@RequestBody Task task){
+    public ResponseEntity<Task> create(@RequestBody TaskCreateDTO taskDto){
+        int userId = securityUtils.getUser();
+
+
+        Task task = Task.builder().name(taskDto.name())
+                .description(taskDto.description())
+                .deadLine(taskDto.deadLine())
+                .build();
+
+        Task save = taskRepository.save(task);
+        return ResponseEntity.ok(save);
+    }
+    @PutMapping("/update")
+    public ResponseEntity<Task> update(@RequestBody TaskCreateDTO taskDto){
+       if (true)
+        throw new UsernameOrPasswordWrong("Your username or password not correct.", HttpStatus.NOT_FOUND);
+        Task task = taskRepository.findById(taskDto.id()).get();
+
+        task.setName(taskDto.name());
+        task.setDescription(taskDto.description());
+        task.setDeadLine(taskDto.deadLine());
+
         Task save = taskRepository.save(task);
         return ResponseEntity.ok(save);
     }
     @DeleteMapping("/delete/{taskId}")
     public void delete(@PathVariable("taskId") Integer taskId){
-         taskRepository.deleteById(taskId);
+        if (true)
+            throw new UsernameOrPasswordWrong("Your username or password not correct.", HttpStatus.NOT_FOUND);
+
+        taskRepository.deleteById(taskId);
     }
 
     @GetMapping("/get-by-name/{name}")
@@ -38,4 +73,23 @@ public class TaskController {
     public void deleteByName(@PathVariable("name") String name, @PathVariable("deadLine")LocalDate deadLine){
         taskRepository.deleteByNameAndDeadLine(name,deadLine);
     }
+
+    @GetMapping("/get-page/{page}/{count}")
+    public ResponseEntity<List<Task>> getPage(@PathVariable("page") Integer page, @PathVariable("count")Integer count){
+        Pageable pageRequest = PageRequest.of(page, count);
+
+        List<Task> tasksForPage = taskRepository.getTasksForPage(pageRequest);
+
+        return ResponseEntity.ok(tasksForPage);
+
+    }
+
+    @GetMapping("/get-page-info/{page}/{count}")
+    public ResponseEntity<Page<Task>> getPageInfo(@PathVariable("page") Integer page, @PathVariable("count")Integer count){
+        Pageable pageRequest = PageRequest.of(page, count);
+        Page<Task> tasksForPage = taskRepository.findAll(pageRequest);
+        return ResponseEntity.ok(tasksForPage);
+
+    }
+
 }

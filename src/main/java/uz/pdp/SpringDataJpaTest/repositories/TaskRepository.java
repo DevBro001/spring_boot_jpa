@@ -25,4 +25,14 @@ public interface TaskRepository extends JpaRepository<Task, Integer> {
             value = " delete from task t where t.name=?1 and t.dead_line>?2"
     )
     void deleteByNameAndDeadLine(String name, LocalDate deadLine);
+
+
+    @Query(
+            nativeQuery = true,
+            value = "select t.* from Task t") // JPQL query
+    List<Task> getTasksForPage(Pageable pageable);
+
+
+
+    Page<Task> findAll(Pageable pageable);
 }

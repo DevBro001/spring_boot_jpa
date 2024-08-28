@@ -1,10 +1,7 @@
 package uz.pdp.SpringDataJpaTest.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -19,12 +16,8 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
-public class Task {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
 
+public class Task extends BaseEntity{
 
     private String name;
 
@@ -34,4 +27,12 @@ public class Task {
     @Column(name = "dead_line")
     private LocalDate deadLine;
 
+    @Builder
+    public Task(String name, String description, LocalDate deadLine) {
+        this.name = name;
+        this.description = description;
+        this.deadLine = deadLine;
+    }
 }
+
+

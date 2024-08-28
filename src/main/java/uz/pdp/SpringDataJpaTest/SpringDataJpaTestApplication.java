@@ -10,6 +10,7 @@ import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.util.StringUtils;
+import uz.pdp.SpringDataJpaTest.utils.SecurityUtils;
 
 import javax.sql.DataSource;
 import java.util.Optional;
@@ -18,6 +19,12 @@ import java.util.Random;
 @SpringBootApplication
 @EnableJpaAuditing
 public class SpringDataJpaTestApplication {
+
+	private final SecurityUtils securityUtils;
+
+	public SpringDataJpaTestApplication(SecurityUtils securityUtils) {
+		this.securityUtils = securityUtils;
+	}
 
 	public static void main(String[] args) {
 		SpringApplication.run(SpringDataJpaTestApplication.class, args);
@@ -33,6 +40,6 @@ public class SpringDataJpaTestApplication {
 	}
 	@Bean
 	public AuditorAware<Integer> auditorAware(){
-		return ()-> Optional.ofNullable(new Random().nextInt());
+		return ()-> Optional.ofNullable(securityUtils.getUser());
 	}
 }
