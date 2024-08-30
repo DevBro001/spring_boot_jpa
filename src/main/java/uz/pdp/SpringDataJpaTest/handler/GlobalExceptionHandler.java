@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler({UsernameOrPasswordWrong.class, RuntimeException.class})
+    @ExceptionHandler({UsernameOrPasswordWrong.class})
     public ErrorBodyDto usernameOrPasswordWrong(HttpServletRequest request, UsernameOrPasswordWrong exception){
         return new ErrorBodyDto(
                 exception.getStatus().value(),
