@@ -90,17 +90,6 @@ public class TaskController {
      @GetMapping("/getAll")
      @PreAuthorize("hasAnyRole('ADMIN','SELLER')")
     public ResponseEntity<List<Task>> getPage(HttpServletRequest request){
-         System.out.println("================================================================");
-//         byte[] authorizations = new Base64().decode(request.getHeader("Authorization"));
-         String header = request.getHeader("Authorization");
-         System.out.println(header);
-         String token = header.substring(6);
-
-         byte[] authorizations = Base64.getDecoder().decode(token);
-
-         String basic = new String(authorizations);
-         System.out.println("Authorization: "+ basic);
-         System.out.println("================================================================");
          List<Task> tasksForPage = taskRepository.findAll();
         return ResponseEntity.ok(tasksForPage);
 

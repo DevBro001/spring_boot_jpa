@@ -7,16 +7,23 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import uz.pdp.SpringDataJpaTest.dto.ErrorBodyDto;
 
 import java.io.PrintWriter;
@@ -28,8 +35,7 @@ import java.util.List;
 public class SecurityConfig {
 
     private final String[] WHITE_LIST = new String[]{
-                   "/auth/register/**",
-                    "/auth/login/**"
+                   "/auth/**",
         };
 
     private final ObjectMapper objectMapper;
@@ -39,17 +45,21 @@ public class SecurityConfig {
     private final AccessDeniedHandler accessDeniedHandler;
 
     private final AuthenticationEntryPoint authenticationEntryPoint;
+    private final JwtRequestFilter jwtRequestFilter;
+
     @Lazy
-    public SecurityConfig(ObjectMapper objectMapper, @Qualifier("userDetailsService") UserDetailsService userDetailsService, AccessDeniedHandler accessDeniedHandler, AuthenticationEntryPoint authenticationEntryPoint) {
+    public SecurityConfig(ObjectMapper objectMapper, @Qualifier("customUserDetailsService") UserDetailsService userDetailsService, AccessDeniedHandler accessDeniedHandler, AuthenticationEntryPoint authenticationEntryPoint, JwtRequestFilter jwtRequestFilter) {
         this.objectMapper = objectMapper;
         this.userDetailsService = userDetailsService;
         this.accessDeniedHandler = accessDeniedHandler;
         this.authenticationEntryPoint = authenticationEntryPoint;
+        this.jwtRequestFilter = jwtRequestFilter;
     }
 
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.csrf(AbstractHttpConfigurer::disable);
 
         http.authorizeHttpRequests((auth)->{
                  auth
@@ -58,31 +68,17 @@ public class SecurityConfig {
                 }
         );
         http.userDetailsService(userDetailsService);
-        http.httpBasic(Customizer.withDefaults());
         http.exceptionHandling((handler)->{
             handler.accessDeniedHandler(accessDeniedHandler);
             handler.authenticationEntryPoint(authenticationEntryPoint);
         });
+
+        http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 
 
-    @Bean
-    public UserDetailsService userDetailsService(){
-        UserDetails user = User.withUsername("user")
-                .password("{noop}pass")
-                .roles("USER").build();
-
-        UserDetails seller = User.withUsername("seller")
-                .password("{noop}pass")
-                .roles("SELLER").build();
-
-        UserDetails admin = User.withUsername("admin")
-                .password("{noop}pass")
-                .roles("ADMIN").build();
-
-        return new InMemoryUserDetailsManager(List.of(user,seller,admin));
-    }
 
     @Bean
     public AccessDeniedHandler accessDeniedHandler(){
@@ -118,6 +114,16 @@ public class SecurityConfig {
             objectWriter.writeValue(writer,bodyDto);
 
         };
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder(){
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+        return configuration.getAuthenticationManager();
     }
 
 
