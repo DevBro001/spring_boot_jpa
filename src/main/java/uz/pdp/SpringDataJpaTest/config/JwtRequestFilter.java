@@ -40,20 +40,17 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 String subject = jwtUtil.getSubject(token);
                 UserDetails userDetails = customUserDetailsService.loadUserByUsername(subject);
 
-                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails.getUsername(),null,userDetails.getAuthorities());
+                UsernamePasswordAuthenticationToken authenticationToken =
+                        new UsernamePasswordAuthenticationToken(userDetails.getUsername(),null,userDetails.getAuthorities());
                 WebAuthenticationDetails webAuthenticationDetails = new WebAuthenticationDetails(request);
                 authenticationToken.setDetails(webAuthenticationDetails);
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             }catch (ExpiredJwtException e){
-                response.sendError(404,"expired");
-                return;
+                logger.error("Token expired");
             }catch (Exception e){
-                response.sendError(404,"salom");
-                return;
+                logger.error("Token invalid or user not found");
             }
         }
-
-
         filterChain.doFilter(request,response);
     }
 }

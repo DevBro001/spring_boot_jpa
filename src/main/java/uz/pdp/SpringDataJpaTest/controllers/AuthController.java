@@ -4,11 +4,14 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import uz.pdp.SpringDataJpaTest.dto.AuthenticationDto;
 import uz.pdp.SpringDataJpaTest.exception.UsernameOrPasswordWrong;
 import uz.pdp.SpringDataJpaTest.model.User;
 import uz.pdp.SpringDataJpaTest.repositories.UserRepository;
@@ -42,12 +45,12 @@ public class AuthController {
         User save = userRepository.save(user);
         return user;
     }
-    @PostMapping("/login")
-    public String register(@RequestParam("username")String username, @RequestParam("password")String password){
+    @PostMapping("/authentication")
+    public ResponseEntity<AuthenticationDto> authentication(@RequestParam("username")String username, @RequestParam("password")String password){
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username,password);
         Authentication authenticate = authenticationManager.authenticate(authenticationToken);
-        String token = jwtUtil.generateToken(username);
-        return token;
+        String accessToken = jwtUtil.generateToken(username);
+        return ResponseEntity.ok(new AuthenticationDto(accessToken));
     }
 
 

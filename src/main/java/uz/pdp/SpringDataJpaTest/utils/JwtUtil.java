@@ -1,6 +1,7 @@
 package uz.pdp.SpringDataJpaTest.utils;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -15,7 +16,7 @@ import java.util.Map;
 @Component
 public class JwtUtil {
 
-    private final String SECRET_HS256_KEY = "0UV71mbM8W53jOfBJ62mFopRREjlnhA+zyCogXKp/VE=";
+    private final String SECRET_HS256_KEY = "34e7f550e2715c958372db43db8f68c0ea686807bf7eab4f22f2ee673df0f929";
     private final Long EXPIRED_DATE = System.currentTimeMillis()+10*60*1000;
     public SecretKey getKeysHs256(){
         return Keys.hmacShaKeyFor(SECRET_HS256_KEY.getBytes());
@@ -58,9 +59,10 @@ public class JwtUtil {
     }
 
     public Claims getJWTBody(String token){
-        return (Claims) Jwts.parserBuilder()
+        JwtParser parser = Jwts.parserBuilder()
                 .setSigningKey(getKeysHs256())
-                .build()
+                .build();
+        return (Claims) parser
                 .parse(token)
                 .getBody();
     }

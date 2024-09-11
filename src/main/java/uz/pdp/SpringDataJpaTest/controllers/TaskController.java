@@ -1,5 +1,7 @@
 package uz.pdp.SpringDataJpaTest.controllers;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,6 +24,8 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/task")
+@SecurityRequirement(name = "bearerAuth")
+@Tag(name = "TaskUI",description = "Bu yerda faqat tasklar ustida amallar bajariladi")
 public class TaskController {
 
 
