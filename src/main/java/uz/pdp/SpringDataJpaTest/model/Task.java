@@ -10,6 +10,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "task")
@@ -27,11 +28,15 @@ public class Task extends BaseEntity{
     @Column(name = "dead_line")
     private LocalDate deadLine;
 
+    @OneToMany
+    private List<User> users;
+
     @Builder
-    public Task(String name, String description, LocalDate deadLine) {
+    public Task(String name, String description, LocalDate deadLine, List<User> users) {
         this.name = name;
         this.description = description;
         this.deadLine = deadLine;
+        this.users = users;
     }
 }
 
