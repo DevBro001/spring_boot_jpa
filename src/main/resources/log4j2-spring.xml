@@ -23,7 +23,7 @@
 
         <CustomAppender
                 name="CustomAppender"
-                botToken ="6891710529:AAFbxQPzHRHXEvRANOq2Bhev3jb63lywWB8"
+                botToken ="your bot token"
         >
             <PatternLayout>
                 <pattern>%d %p %30.50C [%t] %m%n</pattern>
