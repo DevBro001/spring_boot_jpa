@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: SpringDataJpaTest
+  datasource:
+    url: jdbc:postgresql://localhost:5432/springboot
+    username: postgres
+    password: root
+    driver: org.postgresql.Driver
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    url: jdbc:postgresql://localhost:5432/springboot
+    user: postgres
+    password: root
+    locations: classpath:db/repeatable,classpath:db/version
+    baseline-on-migrate: true
+    baseline-version: 202409301050
